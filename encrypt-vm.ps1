@@ -1,4 +1,4 @@
-#encrypt vms
+#Encrypt VMs
 #input can be csv file with VM names or csv with ESXi names - use either 'vms' or 'hosts' header in csv file to declare that.
 #script will loop through the csv file and shutdown VM, encrypt and power on.
 #note that it takes significant amount of time to encrypt large disks 
