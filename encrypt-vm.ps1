@@ -1,9 +1,12 @@
 #encrypt vms
-#input can be csv with vm names or csv with esxi names - use either 'vms' or 'hosts' header in csv to declare that.
-#script will loop through the csv file and shutdown vm, encrypt and power on.
-#note that it takes significant amount of time to encrypt large disks and downtime should be arranged with app manager prior.
+#input can be csv file with VM names or csv with ESXi names - use either 'vms' or 'hosts' header in csv file to declare that.
+#script will loop through the csv file and shutdown VM, encrypt and power on.
+#note that it takes significant amount of time to encrypt large disks 
 #Contact: Michal Czechowski
 #Date: 10.1.2021
+#Modify by AngryAdmin
+#https://angrysysops.com
+#Twitter: @AngrySysOps
 
 [CmdletBinding()]
 Param(
@@ -52,7 +55,7 @@ process{
                     }until($status -eq "PoweredOff")
                 } 
                  elseif ($vm.PowerState -eq "PoweredOff") {
-                    Write-Verbose "$vmname is powered down"
+                    Write-Verbose -ForegroundColor Green "$vmname is powered down"
                 }
             }
          up {
@@ -74,7 +77,7 @@ process{
                     }until($status -eq "PoweredOn")
                 }
                  elseif ($vm.PowerState -eq "PoweredOn") {
-                    Write-Verbose "$vmname is powered up"
+                    Write-Verbose -ForegroundColor Green "$vmname is powered up"
                 }
             }
         }
@@ -94,7 +97,7 @@ try{
     connect-viserver $vcenter
     }
 catch {
-    write-host "Check if '$vcenter' parameter was input correctly."
+    write-host -ForegroundColor Red "Check if '$vcenter' parameter was input correctly."
     }
 
 $EncryptionPolicy = Get-SpbmStoragePolicy -name "VM Encryption Policy"
@@ -102,26 +105,26 @@ $EncryptionPolicy = Get-SpbmStoragePolicy -name "VM Encryption Policy"
 $inputz = import-csv $path_to_csv
 
 if ($inputz.vms -ne $null) {
-    write-host -ForegroundColor Cyan "Found csv file with list of VMs. Processing all vm's in a csv."
+    write-host -ForegroundColor Cyan "Haha I found csv file with list of VMs! Processing all vm's in a csv. You can now grab a coffee and read my blog at angrysysops.com"
     foreach ($v in $inputz.vms) {
             Wait-VMPowerState -VMName $v -Operation Down
-            Get-VM $v | Enable-VMEncryption -policy $EncryptionPolicy -KMSClusterId "vault-prod"
+            Get-VM $v | Enable-VMEncryption -policy $EncryptionPolicy -KMSClusterId "KMS_ID"
             get-vm $v | start-vm -Confirm:$false
             }
     }
 elseif ($inputz.hosts -ne $null) {
-    write-host -ForegroundColor Cyan "Found csv file with list of ESXi hosts. Processing all vm's running on ESXi hosts in CSV."
+    write-host -ForegroundColor Cyan "BINGO! I found csv file with list of ESXi hosts. Processing all vm's running on ESXi hosts in CSV. You can now grab a coffee and read my blog at angrysysops.com "
     foreach ($h in $inputz.hosts) {
         $vms = get-vmhost $h | get-vm | where name -notlike "*vcls*" | where encrypted -like "*false*"
         foreach ($v in $vms) {
             Wait-VMPowerState -VMName $v -Operation Down
-            Get-VM $v | Enable-VMEncryption -policy $EncryptionPolicy -KMSClusterId "vault-prod"
+            Get-VM $v | Enable-VMEncryption -policy $EncryptionPolicy -KMSClusterId "KMS_ID"
             get-vm $v | start-vm -Confirm:$false
             }
         }
     }
 else {
-    write-host -ForegroundColor Cyan "Incorrect header in CSV. Use only one of the following headers: 'vms' or 'hosts'"
+    write-host -ForegroundColor Red "Incorrect header in CSV. Use only one of the following headers: 'vms' or 'hosts'"
     }
 
 
