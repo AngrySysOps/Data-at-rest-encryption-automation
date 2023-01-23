@@ -18,4 +18,4 @@ In line 111 and 122 you need to provide your KMS Cluster ID
 
 Get-VM $v | Enable-VMEncryption -policy $EncryptionPolicy -KMSClusterId "KMS_ID"
 
-Full article on how to use this script is at https://angrysysops.com/
+Full article on how to use this script is at [https://angrysysops.com/](https://angrysysops.com/2021/12/10/how-to-automate-vm-disk-encryption-with-powercli/)
